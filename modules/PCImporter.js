@@ -13,12 +13,12 @@
 20-Oct-2020     v0.6.1: Add basic item importing
 21-Oct-2020     v0.6.1c: Also remove JSON export for now
                 v0.6.1d: importFromFileDialog: Change to show creating new Actor using side button
-24-Oct-2020     v0.6.2: i18n buttons on import dialog  
+24-Oct-2020     v0.6.2: i18n buttons on import dialog
 25-Oct-2020     v0.6.2: Change import button to Person+
                 Add Settings for default Compendiums to search for classes etc.
-26-Oct-2020     v0.6.3: getEntriesForPattern() returns both key and value   
-27-Oct-2020     v0.6.3b: Removed "race" setting since Racial Features are actually in with Class Features(?)          
-31-Oct-2020     v0.6.6b: Move settings config in init to PCISettings.js  
+26-Oct-2020     v0.6.3: getEntriesForPattern() returns both key and value
+27-Oct-2020     v0.6.3b: Removed "race" setting since Racial Features are actually in with Class Features(?)
+31-Oct-2020     v0.6.6b: Move settings config in init to PCISettings.js
 
 
 */
@@ -41,7 +41,7 @@ export class PCImporter {
     }
 
     static async importFromFileDialog() {
-//FIXME: for now this is started from the button which alway creates a new Actor        
+//FIXME: for now this is started from the button which alway creates a new Actor
         const dialogContent = game.i18n.localize("PCI.ImportDialog.CONTENT") + game.i18n.localize("PCI.ImportDialog.Create.CONTENT");
         new Dialog({
             title: game.i18n.localize("PCI.ImportDialog.TITLE"),
@@ -291,7 +291,7 @@ export class PCImporter {
 
         if (notesButton && game.user.isGM) {
             notesButton.tools.push({
-                name: "importPC",
+                id: "importPC",
                 title: "PCI.Import.BUTTON",
                 icon: "fas fa-user-plus",
                 toggle: false,
