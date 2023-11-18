@@ -291,7 +291,7 @@ export class PCImporter {
 
         if (notesButton && game.user.isGM) {
             notesButton.tools.push({
-                id: "importPC",
+                name: "importPC",
                 title: "PCI.Import.BUTTON",
                 icon: "fas fa-user-plus",
                 toggle: false,
