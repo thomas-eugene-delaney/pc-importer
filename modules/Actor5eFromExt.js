@@ -21,7 +21,7 @@
 				(will also need to add a mapper from MPMB subclass names to standard D&D - we do that internally
 				  for known ones but then allow for homebrew/custom)
 				Switch back to Class Features, but now extract blocks for each class
-				and then loop through the block to find the subclass  
+				and then loop through the block to find the subclass
 21-Oct-2020		v0.6.1c: MPMB: Create items - simple match or create the item as Loot
 				(We will want to add other known details such as # and weight for later manual matching)
 				v0.6.1d: MPMB - Extract feats and features from "Class Features"
@@ -39,13 +39,13 @@
 25-Oct-2020	v0.6.2b: Pull pack names from settings and override if non-null; this allows you to change matching order and add new compendiums
 					Add "race" match
 					Add details.biography.value - append all Background elements
-			v0.6.2c	Show LOADING on Actor name until it's done importing and matching	
+			v0.6.2c	Show LOADING on Actor name until it's done importing and matching
 26-Oct-2020	v0.6.2c	Fix up languages; move those not found into custom
-26-Oct-2020	v0.6.3:	Add weight and quantities for items		
+26-Oct-2020	v0.6.3:	Add weight and quantities for items
 27-Oct-2020 v0.6.3b:	Parallelize matchItems
 						getItemTypePackNames(): ADDED - also used by MatchItem.js
-29-Oct-2020 v0.6.4	Change Promise.all to .alLSettled (because if one fails that's ok)	
-1-Nov-2020	v0.6.6	Extend extractClasses to pick up features in Extra.Notes	
+29-Oct-2020 v0.6.4	Change Promise.all to .alLSettled (because if one fails that's ok)
+1-Nov-2020	v0.6.6	Extend extractClasses to pick up features in Extra.Notes
 					For matched items, copy over quantity but not weight
 					Tweak extractClasses regex to remove unneeded capture groups ()
 16-Aug-2020 v0.7.0	Support Foundry v0.8.x; Issue #2 No actor is created when uploading xfdf file
@@ -202,26 +202,39 @@ export class Actor5eFromExt {
 		await this.matchItems();
 	}
 
-	fixFoundryActor() {
-		const foundryVersion = game.data.release?.generation ?? game.data.version;
-		//LANGUAGES: Check that they are in the known set of DND5E languages
-		let unknownLanguages = [];
-		const KNOWN_LANGUAGES = (foundryVersion === 10) ? CONFIG.DND5E.languages : DND5E?.languages; 
-		this.actorData.data.traits.languages.value.forEach(lang => {
-			if (!(lang in KNOWN_LANGUAGES)) {unknownLanguages.push(lang);}
-		});
-		//Filter out the unknown languages
-		this.actorData.data.traits.languages.value = this.actorData.data.traits.languages.value.filter(lang => lang in KNOWN_LANGUAGES);
-		//And add them to custom
-		if (!this.actorData.data.traits.languages.custom) {this.actorData.data.traits.languages.custom = "";}
-		if (unknownLanguages.length) {
-			this.actorData.data.traits.languages.custom = unknownLanguages.reduce((accum, lang) => {
-				if (accum.length === 0) {return lang;}
-				else {return accum+";"+lang;}
-			}, this.actorData.data.traits.languages.custom);
-		}
-	}
+    fixFoundryActor() {
+        const foundryVersion = game.data.release?.generation ?? game.data.version;
 
+        // LANGUAGES: Check that they are in the known set of DND5E languages
+        let unknownLanguages = [];
+
+        // Use DND5E if available, otherwise fall back to CONFIG.DND5E
+        const KNOWN_LANGUAGES = (foundryVersion === 11) ? (globalThis.DND5E || CONFIG.DND5E).languages : (globalThis.DND5E?.languages || CONFIG.DND5E.languages);
+
+        this.actorData.data.traits.languages.value.forEach(lang => {
+            if (!(lang in KNOWN_LANGUAGES)) {
+                unknownLanguages.push(lang);
+            }
+        });
+
+        // Filter out the unknown languages
+        this.actorData.data.traits.languages.value = this.actorData.data.traits.languages.value.filter(lang => lang in KNOWN_LANGUAGES);
+
+        // And add them to custom
+        if (!this.actorData.data.traits.languages.custom) {
+            this.actorData.data.traits.languages.custom = "";
+        }
+
+        if (unknownLanguages.length) {
+            this.actorData.data.traits.languages.custom = unknownLanguages.reduce((accum, lang) => {
+                if (accum.length === 0) {
+                    return lang;
+                } else {
+                    return accum + ";" + lang;
+                }
+            }, this.actorData.data.traits.languages.custom);
+        }
+    }
 
 	async matchItems() {
 		if (!this.itemData || !this.itemData.items) {return;}
@@ -306,7 +319,7 @@ export class Actor5eFromExt {
 		if (!stringIndex || !stringToMatch) {return null;}
 		//Ranks matches by word , with 1 for all words matches and 0 for none
 		//Still probably won't be able to distinguish that Tenser's Floating Disk === Floating Disk
-		//but Magic Missiile != Jim's Magic Missile 
+		//but Magic Missiile != Jim's Magic Missile
 		//Try to short-circuit with full name match
 		let foundIndex = stringIndex.find(s => s.name === stringToMatch);
 		if (!foundIndex) {
@@ -411,7 +424,7 @@ export class Actor5eFromMPMB extends Actor5eFromExt {
 		//which appears in the form "subclass1 n1,subclass2 n2"
 		//subclass can contain () and spaces, but we don't capture them at the beginning or end
 		//The problem is that we end up with two unrecognizable strings without further processing
-/*        
+/*
 		let classLevelMatches = new Set();
 		const classAndLevelRegExp = /((?:[A-Za-z()]+\s?)+)\s(\d{1,2})(?:,|$)/g;
 
@@ -444,7 +457,7 @@ export class Actor5eFromMPMB extends Actor5eFromExt {
 			classItemData.name = match[2];
 			classItemData.data.levels = match[1];
 			this.itemData.items.push(classItemData);
-		}  
+		}
 
 		//Now we reprocess these segments to get the features and the subclass name
 		//The subclass can be stored with the class name, but we create additional items for the features
@@ -462,16 +475,16 @@ export class Actor5eFromMPMB extends Actor5eFromExt {
 				}
 				//And store the separate features
 				const featureItemData = duplicate(TemplateFeatData);
-				//Remember where the match started and finished 
+				//Remember where the match started and finished
 				featureItemData.startIndex = match.index;
 				featureItemData.endIndex = featuresAndSubClassRegExp.lastIndex;
 				featureItemData.name = match[1];
-//FIXME: Change the match to get all the text up to the next match				
+//FIXME: Change the match to get all the text up to the next match
 				featureItemData.data.description.value = match[0];
 				this.itemData.items.push(featureItemData);
 			}
-			delete this.itemData.items[i].fullMatch;    
-		}); 
+			delete this.itemData.items[i].fullMatch;
+		});
 
 		//MORE FEATURES: In "Extra.Notes"
 		//Keep this separate so we can loop it below for descriptive text
@@ -485,13 +498,13 @@ export class Actor5eFromMPMB extends Actor5eFromExt {
 		while (match = extraNoteFeaturesRegExp.exec(mappedValue)) {
 			let featureItemData = duplicate(TemplateFeatData);
 			featureItemData.fullMatch = match[0];
-			//Remember where the match started and finished 
+			//Remember where the match started and finished
 			featureItemData.startIndex = match.index;
 			featureItemData.endIndex = extraNoteFeaturesRegExp.lastIndex;
 			featureItemData.name = match[1];
 			featureItemData.flags.featureType = match[2];
 			tempExtraFeatureItemData.push(featureItemData);
-		}  
+		}
 		this.extractDescription(mappedValue, tempExtraFeatureItemData);
 
 		this.itemData.items = [].concat(this.itemData.items, tempExtraFeatureItemData);
@@ -499,7 +512,7 @@ export class Actor5eFromMPMB extends Actor5eFromExt {
 
 	extractDescription(mappedValue, tempItemData) {
 		//Assuming you've saved the start and endIndex of the matches
-		//Now add the text between the nth and n+1th capture 
+		//Now add the text between the nth and n+1th capture
 		let nextStartIndex;
 		let thisEndIndex;
 		let descriptiveText;
@@ -1032,7 +1045,7 @@ const Actor5eToMPMBMapping = {
 		"vision": true,
 		"dimSight": {default: 60},
 		"brightSight": 0,
-/*		
+/*
 		"dimLight": null,
 		"brightLight": null,
 		"sightAngle": 360,
@@ -1041,7 +1054,7 @@ const Actor5eToMPMBMapping = {
 		"actorId": null,
 		"actorLink": true,
 		"actorData": null,
-*/		
+*/
 		"disposition": 1,	//FRIENDLY
 		"displayBars": 0,
 		"bar1": {
