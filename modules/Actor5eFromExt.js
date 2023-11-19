@@ -209,7 +209,8 @@ export class Actor5eFromExt {
         let unknownLanguages = [];
 
         // Use DND5E if available, otherwise fall back to CONFIG.DND5E
-        const KNOWN_LANGUAGES = (foundryVersion === 11) ? (globalThis.DND5E || CONFIG.DND5E).languages : (globalThis.DND5E?.languages || CONFIG.DND5E.languages);
+        const dnd5eLanguages = (globalThis.DND5E && globalThis.DND5E.languages) || CONFIG.DND5E.languages;
+        const KNOWN_LANGUAGES = (foundryVersion === 11) ? dnd5eLanguages : dnd5eLanguages;
 
         this.actorData.data.traits.languages.value.forEach(lang => {
             if (!(lang in KNOWN_LANGUAGES)) {
