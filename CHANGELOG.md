@@ -1,4 +1,7 @@
 # Changelog
+## 0.10.0
+- Fixed: Error caused by dnd5e 2.4.0 due to a deprecated DND5E call
+
 ## 0.8.0
 - Fixed: Issue [#3](https://github.com/spetzel2020/pc-importer/issues/3)
 
@@ -25,7 +28,7 @@
  - i18n button names on import dialog
  - Add ability to specify additional compendiums or re-order them (although you have to know their filenames)
  - Add race compendium and match Racial Features
- - Show LOADING on Actor name until it's done importing and matching	
+ - Show LOADING on Actor name until it's done importing and matching
 - Fix up languages; move those not found in DND5E.languages into custom
 - Default added weapons to Proficient
 
